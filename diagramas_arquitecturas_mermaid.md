@@ -101,26 +101,57 @@ flowchart TB
   DB[(RDS PostgreSQL)]
   S3[(S3 Archivos)]
   REDIS[ElastiCache (Redis)]
-  OBS["CloudWatch/X-Ray"]
-  SEC["Secrets Manager + KMS"]
+  OBS["CloudWatch / X-Ray"]
+  SEC["Secrets Manager / KMS"]
 
+  %% flujo cliente -> API -> BFF
   UI --> APIG --> BFF
+
+  %% BFF acceso a datos y publicación de jobs
   BFF --> DB
   BFF --> S3
   BFF --> SQS
+
+  %% fetcher descarga y publica trabajos
   FETCH --> S3
   FETCH --> DB
   FETCH --> SQS
+
+  %% consumidores de colas
+  SQS --> PARSE
+  SQS --> RPT
+  SQS --> VOID
+  SQS --> ZIP
+
+  %% servicios a datos/archivos
   PARSE --> DB
   PARSE --> S3
   RPT --> DB
   RPT --> S3
   VOID --> DB
   ZIP --> S3
+
+  %% notificaciones
   ZIP --> SNS
+
+  %% cache
   REDIS --- BFF
-  OBS --- BFF & FETCH & PARSE & RPT & VOID & ZIP
-  SEC --> BFF & FETCH & PARSE & RPT & VOID & ZIP
+
+  %% observabilidad (líneas separadas por servicio)
+  OBS --- BFF
+  OBS --- FETCH
+  OBS --- PARSE
+  OBS --- RPT
+  OBS --- VOID
+  OBS --- ZIP
+
+  %% secretos/cifrado (líneas separadas por servicio)
+  SEC --> BFF
+  SEC --> FETCH
+  SEC --> PARSE
+  SEC --> RPT
+  SEC --> VOID
+  SEC --> ZIP
 ```
 
 ---
