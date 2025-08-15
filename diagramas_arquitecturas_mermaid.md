@@ -152,9 +152,8 @@ flowchart TB
   SEC --> RPT
   SEC --> VOID
   SEC --> ZIP
-```
 
----
+```
 
 ## 3) Kubernetes Gestionado (EKS) + GitOps — Alto nivel
 
